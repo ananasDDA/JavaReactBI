@@ -1,0 +1,33 @@
+# Java / Gradle
+backend/.gradle/
+backend/build/
+backend/out/
+backend/bin/
+backend/*.log
+backend/HELP.md
+backend/.idea/
+backend/*.iml
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+frontend/*.log
+frontend/*.tsbuildinfo
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker local state
+docker/mysql-data/
+
+# Source artifacts kept only for reference (docx/zip are binary, csv is large)
+# If you want to exclude them from git, uncomment:
+# docs/source_select.docx
+# docs/source_query.csv
+# docs/source_dashboard.zip

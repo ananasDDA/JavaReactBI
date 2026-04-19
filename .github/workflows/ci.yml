@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Grant execute permission for gradlew
+        working-directory: backend
+        run: chmod +x gradlew
+      - name: Run backend tests
+        working-directory: backend
+        run: ./gradlew --no-daemon test
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Bake data.json from CSV
+        run: python3 scripts/csv_to_datajson.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+      - name: Unit tests
+        working-directory: frontend
+        run: pnpm test
+      - name: Typecheck + build
+        working-directory: frontend
+        run: pnpm build

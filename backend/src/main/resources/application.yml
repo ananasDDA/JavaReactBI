@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: javasql-backend
+  datasource:
+    url: jdbc:mysql://localhost:3307/remedy_mts?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: app
+    password: apppwd
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 10000
+
+app:
+  cors:
+    allowed-origins: "http://localhost:5173,http://127.0.0.1:5173"
+  remedy:
+    ei-url: "https://remedy.msk.mts.ru/arsys/servlet/ViewFormServlet?form=I2%3ASingleIncidents&server=remedy-prom&eid={id}"
+    mi-url: "https://remedy.msk.mts.ru/arsys/servlet/ViewFormServlet?form=I2%3AIncidents&server=remedy-prom&eid={id}"
+
+logging:
+  level:
+    root: INFO
+    com.ganshin.jsql: DEBUG
