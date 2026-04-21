@@ -1,7 +1,8 @@
 import { Space, Tag, Typography } from 'antd';
 import type { DataSet, Incident } from '../../types';
 import { KpiCard } from '../kpi/KpiCard';
-import { MonthlyCombo } from '../charts/MonthlyCombo';
+import { ActivityChart } from '../charts/ActivityChart';
+import { ResolutionHistogram } from '../charts/ResolutionHistogram';
 import { SubstatusPivot } from '../pivot/SubstatusPivot';
 import { ResolutionPivot } from '../pivot/ResolutionPivot';
 import { OpenIncidentsTable } from '../tables/OpenIncidentsTable';
@@ -31,9 +32,14 @@ export function DashboardPage({ dataset, filtered }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
         <KpiCard filtered={filtered} />
         <div className="panel">
-          <h3 className="panel-title">Зарегистрированные, решённые ЕИ</h3>
-          <MonthlyCombo filtered={filtered} />
+          <h3 className="panel-title">Динамика регистрации и решения ЕИ</h3>
+          <ActivityChart filtered={filtered} />
         </div>
+      </div>
+
+      <div className="panel">
+        <h3 className="panel-title">Открытые ЕИ по срокам решения (снимок)</h3>
+        <ResolutionHistogram filtered={filtered} />
       </div>
 
       <div className="panel">

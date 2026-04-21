@@ -112,6 +112,131 @@ export function computeMonthly(list: Incident[], unit: TimeUnit = 'month'): Mont
   return { labels, received, resolved, open, avgResolution, withMi, withSla };
 }
 
+export function resolvedDateOf(i: Incident): string | null {
+  if (!i.countResolved) return null;
+  if (!i.createdAt || typeof i.resolutionHours !== 'number') return null;
+  const d = dayjs(i.createdAt);
+  if (!d.isValid()) return null;
+  return d.add(i.resolutionHours * 3600, 'second').toISOString();
+}
+
+export interface ActivitySeries {
+  labels: string[];
+  receivedWithMi: number[];
+  receivedWithoutMi: number[];
+  resolvedWithMi: number[];
+  resolvedWithoutMi: number[];
+  avgResolution: (number | null)[];
+}
+
+export function computeActivity(list: Incident[], unit: TimeUnit = 'month'): ActivitySeries {
+  type Bucket = {
+    label: string;
+    order: number;
+    recMi: number;
+    recNoMi: number;
+    resMi: number;
+    resNoMi: number;
+    resolvedHours: number[];
+  };
+  const buckets = new Map<string, Bucket>();
+
+  const ensure = (p: PeriodKey): Bucket => {
+    const existing = buckets.get(p.key);
+    if (existing) return existing;
+    const fresh: Bucket = {
+      label: p.label,
+      order: p.order,
+      recMi: 0,
+      recNoMi: 0,
+      resMi: 0,
+      resNoMi: 0,
+      resolvedHours: [],
+    };
+    buckets.set(p.key, fresh);
+    return fresh;
+  };
+
+  for (const i of list) {
+    if (i.countReceived) {
+      const p = periodKey(i.createdAt, unit);
+      if (p) {
+        const b = ensure(p);
+        if (i.miId) b.recMi += 1;
+        else b.recNoMi += 1;
+      }
+    }
+    if (i.countResolved) {
+      const resolvedAt = resolvedDateOf(i);
+      const p = periodKey(resolvedAt, unit);
+      if (p) {
+        const b = ensure(p);
+        if (i.miId) b.resMi += 1;
+        else b.resNoMi += 1;
+        if (typeof i.resolutionHours === 'number') b.resolvedHours.push(i.resolutionHours);
+      }
+    }
+  }
+
+  const ordered = Array.from(buckets.values()).sort((a, b) => a.order - b.order);
+  return {
+    labels: ordered.map((b) => b.label),
+    receivedWithMi: ordered.map((b) => b.recMi),
+    receivedWithoutMi: ordered.map((b) => b.recNoMi),
+    resolvedWithMi: ordered.map((b) => b.resMi),
+    resolvedWithoutMi: ordered.map((b) => b.resNoMi),
+    avgResolution: ordered.map((b) =>
+      b.resolvedHours.length ? b.resolvedHours.reduce((a, c) => a + c, 0) / b.resolvedHours.length : null,
+    ),
+  };
+}
+
+export const HOUR_BUCKET_LABELS: readonly string[] = ['4ч', '12ч', '24ч', '48ч', '72ч', '>72ч'];
+
+export function hourBucket(hours: number | null | undefined): string | null {
+  if (typeof hours !== 'number' || Number.isNaN(hours)) return null;
+  if (hours < 4) return '4ч';
+  if (hours < 12) return '12ч';
+  if (hours < 24) return '24ч';
+  if (hours < 48) return '48ч';
+  if (hours < 72) return '72ч';
+  return '>72ч';
+}
+
+export interface ResolutionHistogram {
+  labels: readonly string[];
+  openWithMi: number[];
+  openWithoutMi: number[];
+  openTotal: number;
+  openMiTotal: number;
+}
+
+export function computeResolutionHistogram(list: Incident[]): ResolutionHistogram {
+  const open = list.filter((i) => i.countOpen === 1);
+  const mi = new Array<number>(HOUR_BUCKET_LABELS.length).fill(0);
+  const noMi = new Array<number>(HOUR_BUCKET_LABELS.length).fill(0);
+  let openMiTotal = 0;
+  for (const i of open) {
+    const bucket = hourBucket(i.resolutionHours);
+    if (!bucket) continue;
+    const idx = HOUR_BUCKET_LABELS.indexOf(bucket);
+    if (idx < 0) continue;
+    if (i.miId) {
+      mi[idx] += 1;
+      openMiTotal += 1;
+    } else {
+      noMi[idx] += 1;
+    }
+  }
+  return {
+    labels: HOUR_BUCKET_LABELS,
+    openWithMi: mi,
+    openWithoutMi: noMi,
+    openTotal: open.length,
+    openMiTotal,
+  };
+}
+
 export interface PivotCell {
   count: number;
   percent: number;
