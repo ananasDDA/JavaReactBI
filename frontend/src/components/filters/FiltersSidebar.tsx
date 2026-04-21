@@ -134,7 +134,7 @@ export function FiltersSidebar({ dataset }: Props) {
       </div>
 
       <div className="sidebar-section">
-        <div className="sidebar-label">Длительность</div>
+        <div className="sidebar-label">Срок решения</div>
         <Select
           mode="multiple"
           allowClear
