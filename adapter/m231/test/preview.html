@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Preview m231 — мок-данные</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="../static/css/m231.css"/>
+    <script>
+        (function () {
+            const MOCK_URL = './data231.mock.json';
+            const realFetch = window.fetch.bind(window);
+            window.fetch = function (input, init) {
+                const url = typeof input === 'string' ? input : input?.url || '';
+                if (url.startsWith('/reports/data231')) return realFetch(MOCK_URL, init);
+                return realFetch(input, init);
+            };
+        })();
+    </script>
+</head>
+<body>
+<div class="container-fluid py-3">
+    <div class="layout">
+        <aside class="sidebar">
+            <h5 class="mb-3">Фильтры (preview с моковыми данными)</h5>
+            <div class="mb-3"><label class="form-label">Тип клиента</label><select id="clientTypeFilter" multiple></select></div>
+            <div class="mb-3"><label class="form-label">Единица времени</label>
+                <select id="timeUnitFilter" class="form-select">
+                    <option value="week">Неделя</option>
+                    <option value="month" selected>Месяц</option>
+                    <option value="quarter">Квартал</option>
+                    <option value="halfyear">Полугодие</option>
+                    <option value="year">Год</option>
+                </select>
+            </div>
+            <div class="mb-3"><label class="form-label">Период от</label><input type="date" class="form-control" id="dateFromFilter"></div>
+            <div class="mb-3"><label class="form-label">Период до</label><input type="date" class="form-control" id="dateToFilter"></div>
+            <div class="mb-3"><label class="form-label">Клиент</label><select id="clientFilter" multiple></select></div>
+            <div class="mb-3"><label class="form-label">Статус</label><select id="statusFilter" multiple></select></div>
+            <div class="mb-3"><label class="form-label">Срок решения</label><select id="slaBucketFilter" multiple></select></div>
+            <div class="mb-3"><label class="form-label">ЕИ</label><select id="eiFilter" multiple></select></div>
+            <div class="mb-3"><label class="form-label">МИ</label><select id="miFilter" multiple></select></div>
+            <button id="resetFiltersBtn" class="btn btn-outline-secondary w-100" type="button">Сбросить</button>
+            <div id="filtersStatus" class="filter-status" role="status" aria-live="polite"></div>
+        </aside>
+        <main class="content">
+            <div class="page-title">Обращаемость клиентов p-LTE (preview)</div>
+            <div class="kpi-row">
+                <div class="kpi-item"><div class="kpi-label">Всего ЕИ</div><div id="kpiTotal" class="kpi-value">0</div></div>
+                <div class="kpi-item"><div class="kpi-label">Решенные ЕИ</div><div id="kpiResolved" class="kpi-value">0</div></div>
+                <div class="kpi-item"><div class="kpi-label">Открытые ЕИ</div><div id="kpiOpen" class="kpi-value">0</div></div>
+                <div class="kpi-item"><div class="kpi-label">Ср. длительность</div><div id="kpiAvgDuration" class="kpi-value">0</div></div>
+            </div>
+            <section class="card-block">
+                <h5>Динамика регистрации и решения ЕИ</h5>
+                <div class="chart-wrap" style="height: 360px;"><canvas id="activityChart"></canvas></div>
+            </section>
+            <section class="card-block">
+                <h5>Открытые ЕИ по срокам решения (снимок)</h5>
+                <div class="mini-kpi">
+                    <span class="mini-kpi__label">Открытых ЕИ</span>
+                    <span id="kpiOpenBox" class="mini-kpi__value">0</span>
+                    <span class="mini-kpi__sublabel">в т.ч. с МИ</span>
+                    <span id="kpiOpenMi" class="mini-kpi__subvalue">0</span>
+                </div>
+                <div class="chart-wrap" style="height: 300px;"><canvas id="resolutionHistogram"></canvas></div>
+            </section>
+            <section class="card-block">
+                <h5>Количество поступивших ЕИ по подстатусам, шт., %</h5>
+                <div id="substatusTableWrap" class="table-wrap"></div>
+            </section>
+            <section class="card-block">
+                <h5>Количество ЕИ в зависимости от срока решения, шт., %</h5>
+                <div id="slaBucketTableWrap" class="table-wrap"></div>
+            </section>
+            <section class="card-block">
+                <h5>Детализация по открытым ЕИ</h5>
+                <table id="openDetailsTable" class="table table-striped table-hover w-100"></table>
+            </section>
+            <section class="card-block">
+                <h5>Общая детализация</h5>
+                <table id="allDetailsTable" class="table table-striped table-hover w-100"></table>
+            </section>
+        </main>
+    </div>
+</div>
+<script src="../static/js/m231-core.js"></script>
+<script src="../static/js/m231.js"></script>
+</body>
+</html>

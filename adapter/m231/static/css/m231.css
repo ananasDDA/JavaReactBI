@@ -1,0 +1,56 @@
+body { background: #f3f5f7; font-size: .9rem; color: #1f2937; }
+.layout { display: flex; align-items: flex-start; gap: 16px; }
+.sidebar { width: 300px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; position: sticky; top: 12px; }
+.content { flex: 1; min-width: 0; }
+.card-block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+.card-block h5 { margin: 0 0 10px; font-size: 1rem; }
+.table-wrap { overflow: auto; }
+.summary-table { min-width: 980px; margin-bottom: 0; }
+.summary-table thead th { background: #eef2f7; position: sticky; top: 0; z-index: 1; }
+.summary-table .total-row { background: #f8fafc; font-weight: 600; }
+.dataTables_wrapper .dataTables_info { padding-top: .8rem; }
+.dataTables_wrapper .dataTables_paginate { display: none; }
+.page-title { font-size: 1.8rem; font-weight: 600; margin-bottom: 12px; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.kpi-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; }
+.kpi-label { color: #6b7280; font-size: .8rem; }
+.kpi-value { font-size: 1.25rem; font-weight: 700; }
+.filter-status { margin-top: 12px; font-size: .82rem; color: #6b7280; min-height: 20px; }
+.filter-status.is-success { color: #15803d; }
+.filter-status.is-error { color: #b91c1c; }
+
+.chart-wrap { position: relative; }
+
+.mini-kpi {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 12px;
+    margin: 0 0 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fafafa;
+}
+.mini-kpi__label { font-size: .78rem; color: #6b7280; }
+.mini-kpi__value { font-size: 1.4rem; font-weight: 700; color: #1f2937; }
+.mini-kpi__sublabel { font-size: .72rem; color: #6b7280; }
+.mini-kpi__subvalue { font-size: .95rem; font-weight: 600; color: #237804; }
+
+#openDetailsTable td:nth-child(15),
+#allDetailsTable td:nth-child(15),
+#openDetailsTable th:nth-child(15),
+#allDetailsTable th:nth-child(15) {
+    min-width: 1020px;
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+#openDetailsTable td:nth-child(16),
+#allDetailsTable td:nth-child(16),
+#openDetailsTable th:nth-child(16),
+#allDetailsTable th:nth-child(16) {
+    min-width: 420px;
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
